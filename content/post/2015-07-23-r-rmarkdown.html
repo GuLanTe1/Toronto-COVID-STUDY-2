@@ -1,0 +1,107 @@
+---
+title: "Toronto_COVID-19_Study"
+author: "Xiangyu Wang"
+date: 2020-09-24
+bibliography: 'references.bib'
+categories: ["R"]
+tags: ["R Markdown", "plot", "regression"]
+---
+
+
+
+<pre class="r"><code>library(opendatatoronto)
+library(tidyverse)
+## ── Attaching packages ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.3.0 ──
+## ✓ ggplot2 3.3.2     ✓ purrr   0.3.4
+## ✓ tibble  3.0.3     ✓ dplyr   1.0.2
+## ✓ tidyr   1.1.2     ✓ stringr 1.4.0
+## ✓ readr   1.3.1     ✓ forcats 0.5.0
+## ── Conflicts ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()
+library(dplyr)</code></pre>
+<pre class="r"><code>toronto_covid_packages &lt;- search_packages(&quot;COVID&quot;)
+toronto_covid_resources &lt;- toronto_covid_packages %&gt;% list_package_resources()
+toronto_covid_statistics &lt;- toronto_covid_resources %&gt;% get_resource()</code></pre>
+<p>#Part.i Abstract</p>
+<p>I used bar plots to visualize the Toronto COVID-19 data offered by Toronto Public Health. The observation were adult between age 19 and 69 was a primarily infected group by the COVID-19, and the case report shows clear evidence that COVID-19 cases, again, are rising fast. As data suggests, we need to prepare another incoming outbreak.
+Tools and data used <span class="citation">Wickham et al. (2019)</span>,<span class="citation">Gelfand (2020)</span>, <a href="mailto:and@citedplyr" class="email">and@citedplyr</a>.</p>
+<p>#Part.ii Introduction</p>
+<p>I want to call the year 2020 as a drama, and COVID-19 plays as the protagonist. To view it globally, it affects many things from politics to economics; to view it near, it changes the way we work, study, and many other things imaginable.
+So, as the weather gets colder, we need to prepare for the future impact of COVID-19. And this study will show specific infection data of COVID-19 to help you understand that it is more lithal to elders than young people, and it is most likely coming back in the upcoming cold days.</p>
+<p>#Part.iii Data Discussion</p>
+<p>Toronto Public Health offers this data set, and it is the version updated by September 23, 2020. It contains 18 variables with 17872 reported COVID-19 infection cases. The variable features I used will be explained next below to its corresponding plot or code section.</p>
+<pre class="r"><code>glimpse(toronto_covid_statistics)
+## Rows: 17,872
+## Columns: 18
+## $ `_id`                    &lt;int&gt; 143647, 143648, 143649, 143650, 143651, 1436…
+## $ Assigned_ID              &lt;int&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 1…
+## $ `Outbreak Associated`    &lt;chr&gt; &quot;Sporadic&quot;, &quot;Sporadic&quot;, &quot;Sporadic&quot;, &quot;Sporadi…
+## $ `Age Group`              &lt;chr&gt; &quot;50 to 59 Years&quot;, &quot;50 to 59 Years&quot;, &quot;20 to 2…
+## $ `Neighbourhood Name`     &lt;chr&gt; &quot;Willowdale East&quot;, &quot;Willowdale East&quot;, &quot;Parkw…
+## $ FSA                      &lt;chr&gt; &quot;M2N&quot;, &quot;M2N&quot;, &quot;M3A&quot;, &quot;M4W&quot;, &quot;M4W&quot;, &quot;M2R&quot;, &quot;M…
+## $ `Source of Infection`    &lt;chr&gt; &quot;Travel&quot;, &quot;Travel&quot;, &quot;Travel&quot;, &quot;Travel&quot;, &quot;Tra…
+## $ Classification           &lt;chr&gt; &quot;CONFIRMED&quot;, &quot;CONFIRMED&quot;, &quot;CONFIRMED&quot;, &quot;CONF…
+## $ `Episode Date`           &lt;chr&gt; &quot;2020-01-22&quot;, &quot;2020-01-21&quot;, &quot;2020-02-05&quot;, &quot;2…
+## $ `Reported Date`          &lt;chr&gt; &quot;2020-01-23&quot;, &quot;2020-01-23&quot;, &quot;2020-02-21&quot;, &quot;2…
+## $ `Client Gender`          &lt;chr&gt; &quot;FEMALE&quot;, &quot;MALE&quot;, &quot;FEMALE&quot;, &quot;FEMALE&quot;, &quot;MALE&quot;…
+## $ Outcome                  &lt;chr&gt; &quot;RESOLVED&quot;, &quot;RESOLVED&quot;, &quot;RESOLVED&quot;, &quot;RESOLVE…
+## $ `Currently Hospitalized` &lt;chr&gt; &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;N…
+## $ `Currently in ICU`       &lt;chr&gt; &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;N…
+## $ `Currently Intubated`    &lt;chr&gt; &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;N…
+## $ `Ever Hospitalized`      &lt;chr&gt; &quot;No&quot;, &quot;Yes&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;…
+## $ `Ever in ICU`            &lt;chr&gt; &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;N…
+## $ `Ever Intubated`         &lt;chr&gt; &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;N…</code></pre>
+<pre class="r"><code>current_stats_1 &lt;- colSums(toronto_covid_statistics == &#39;Yes&#39;)
+current_stats_1[current_stats_1 &gt; 0]
+## Currently Hospitalized       Currently in ICU    Currently Intubated 
+##                     34                     11                      4 
+##      Ever Hospitalized            Ever in ICU         Ever Intubated 
+##                   1990                    428                    293</code></pre>
+<p>The code above demonstrates the current and ever hospitalized, ICU, and Intubated cases related to the infection of COVID-19. The ‘Currently’ cases are included in ‘Ever’ cases.
+The hospitalized rate is 0.11 (11%) and can be calculated by 1990 (ever hospitalized case)/ 17872 Cases (including probable cases). So it seems like most people infected by COVID-19 do not need to be hospitalized. But is that so? Let’s look into data more deeply.</p>
+<p>#Part.iv Plots and Discussion</p>
+<pre class="r"><code>ggplot(data = toronto_covid_statistics) +  aes (x = `Age Group`) + geom_bar(color = &quot;black&quot;,fill = &quot;skyblue2&quot;) + labs(x = &#39;Age Group&#39;, y = &#39;Case Count&#39;, title = &#39;Toronto COVID-19 Cases in All Age Groups&#39;)</code></pre>
+<p><img src="/post/2015-07-23-r-rmarkdown_files/figure-html/unnamed-chunk-5-1.png" width="672" />
+The plot above shows the age groups that infected by COVID-19. On the x-axis, the age group divides by multiple sessions; each session has a year range of 10.
+We can observe that adults between ages 19 and 69 were primarily infected groups by the COVID-19; this may be caused by daily activities like working, shopping, etc. We will come to the infection source later on in the study.
+Note: The NaN part in the plot is mainly caused by data missing on the cases’ age.</p>
+<pre class="r"><code>hospitalized_data &lt;- filter(toronto_covid_statistics, toronto_covid_statistics$`Ever Hospitalized` == &#39;Yes&#39;)
+ggplot(data = hospitalized_data) +  aes (x = hospitalized_data$`Age Group`) + geom_bar(color = &quot;black&quot;,fill = &quot;skyblue2&quot;) + labs(x = &#39;Age Group&#39;, y = &#39;Case Count&#39;, title = &#39;All (Current and Ever) Hospitalized Cases in All Age Groups&#39;)
+## Warning: Use of `hospitalized_data$`Age Group`` is discouraged. Use `Age Group`
+## instead.</code></pre>
+<p><img src="/post/2015-07-23-r-rmarkdown_files/figure-html/unnamed-chunk-6-1.png" width="672" />
+When we look closely at hospitalized data, we found that elders are more likely to be hospitalized than young people. So ‘most people infected by COVID-19 do not need to be hospitalized’ is a false statement. So please be responsible for your actions and take good care of elders around you! They are more vulnerable than you when you are both exposed to the virus.</p>
+<pre class="r"><code>Intubated_data &lt;- filter(toronto_covid_statistics, toronto_covid_statistics$`Ever Intubated` == &#39;Yes&#39;)
+
+ggplot(data = Intubated_data) +  aes (x = `Age Group`) + geom_bar(color = &quot;black&quot;,fill = &quot;skyblue2&quot;) + labs(x = &#39;Age Group&#39;, y = &#39;Case Count&#39;, title = &#39;All (Current and Ever) Intubated Cases in All Age Groups&#39;)</code></pre>
+<p><img src="/post/2015-07-23-r-rmarkdown_files/figure-html/unnamed-chunk-7-1.png" width="672" />
+The intubated data again shows the elder is extremely vulnerable when infected, most groups with age above 50 even have an intubated rate of more than 20%！ (20% was calculated roughly by 80 divide 350).</p>
+<pre class="r"><code>ggplot(data = toronto_covid_statistics) +  aes (x = `Client Gender`) + geom_bar(color = &quot;black&quot;,fill = &quot;skyblue2&quot;)  + labs(x = &#39;Case Gender&#39;, y = &#39;Case Count&#39;, title = &#39;COVID-19 Cases with Different Gender&#39;) </code></pre>
+<p><img src="/post/2015-07-23-r-rmarkdown_files/figure-html/unnamed-chunk-8-1.png" width="672" />
+The above plot shows COVID-19 cases with different gender, and there are more female cases than male cases. A possible assumption is that female is more vulnerable than male. But it contains much possible bias such as male may treat COVID-19 as merely as getting cold and then do not report the case. But it is not the learning goal of my study this time. We may talk about this in future studies.</p>
+<pre class="r"><code>ggplot(data = toronto_covid_statistics) +  aes (x =`Source of Infection`) + geom_bar(color = &quot;black&quot;,fill = &quot;skyblue2&quot;)  + labs(x = &#39;Infection Source&#39;, y = &#39;Case Count&#39;, title = &#39;Source of Infection of Toronto COVID-19 Cases&#39;) </code></pre>
+<p><img src="/post/2015-07-23-r-rmarkdown_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p>The plot above introduces the infection source of reported Toronto COVID-19 cases. Two major infection sources are the close contact and outbreak-associated, then come to the community infection. The close contact, as it states, had confirmed close contact with confirmed/probable cases. The outbreak associated is also related to contact with infected people, especially during the rapid outbreak period. And the community infection cases do not have travel history outside of Ontario. The infection due to travel is not as much as imagined, but it is certainly the major source how the virus spread from countries to countries.</p>
+<pre class="r"><code>ggplot(data = toronto_covid_statistics) +  aes (x =`Episode Date`) + geom_bar(color = &quot;black&quot;,fill = &quot;skyblue2&quot;)  + labs(x = &#39;Episode Date Since 2020&#39;, y = &#39;Case Count&#39;, title = &#39;Toronto COVID-19 Cases by Episode Date&#39;) </code></pre>
+<p><img src="/post/2015-07-23-r-rmarkdown_files/figure-html/unnamed-chunk-10-1.png" width="672" />
+Finally, it comes plot with episode date that helps us understand the real situation Toronto has experienced and is facing now.
+On the very left side of the x-axis is the date that the first few reported case in Toronto, which was back in late January and early February. The infection has grown exponentially due to a lack of understanding of the virus and no public health intervention. Later into the late march, decisive public health intervention was engaged, and the entire city was into lockdown; the daily cases were still growing but slowed and stopped after one month of lockdown. And then there was no much growing, and then the daily infection came down as summer came and reached the lowest daily grows in August the first. However, when people start to party, shopping, celebrating for the happy summertime, and thinking COVID will go away somehow, the daily infection cases rise again. As the weather gets colder and colder, it seems like a second wave of the outbreak is coming as people are probably lowering their guard.
+So be aware, it may not magically disappear as some president claimed. All of us should take good care and responsibility to protect ourselves and our community as a whole. Keep your hands sanitized! Keep your social distance! Reduce unnecessary activities! Let’s work together to defeat the COVID and bring back the party we love, the on-campus course we miss, and the everyday life we have back to non-COVID time.
+Thanks!</p>
+<p>#Part.v Limitations</p>
+<ol style="list-style-type: decimal">
+<li>The data is not up-to-date with the current infection situation since Toronto Public Health updates the data regularly.</li>
+<li>The infection sources are not specific enough, especially we can hardly get more infection information about the ‘outbreak-associated’.</li>
+<li>People with mild symptoms may not report themselves to Public Health since the case report is not mandatory (non-mandatory policy intervention); thus infection date can not represent the true situation that we are facing right now.</li>
+</ol>
+<p>#Part.vi Reference</p>
+<p>City of Toronto and Toronto Public Health, <a href="https://open.toronto.ca/dataset/covid-19-cases-in-toronto/" class="uri">https://open.toronto.ca/dataset/covid-19-cases-in-toronto/</a></p>
+<div id="refs" class="references">
+<div id="ref-citeopendatatoronto">
+<p>Gelfand, Sharla. 2020. <em>Opendatatoronto: Access the City of Toronto Open Data Portal</em>.</p>
+</div>
+<div id="ref-citetidyverse">
+<p>Wickham, Hadley, Mara Averick, Jennifer Bryan, Winston Chang, Lucy D’Agostino McGowan, Romain François, Garrett Grolemund, et al. 2019. “Welcome to the tidyverse.” <em>Journal of Open Source Software</em> 4 (43): 1686. <a href="https://doi.org/10.21105/joss.01686">https://doi.org/10.21105/joss.01686</a>.</p>
+</div>
+</div>
